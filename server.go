@@ -23,7 +23,6 @@ type Code struct {
 var dbmap *gorp.DbMap
 
 func initDb() *gorp.DbMap {
-
     db, err := sql.Open("mysql", "root:@/capublic")
     checkErr(err, "sql.Open failed")
 
@@ -46,15 +45,19 @@ func main() {
         return "hello world"
     })
 
-    m.Get("/codes", func(r render.Render) {
-        var codes []Code
-        _, err := dbmap.Select(&codes, "SELECT * FROM codes_tbl")
+    m.Group("/api", func(r martini.Router) {
 
-        if err == nil {
-            r.JSON(200, codes)
-        } else {
-            r.JSON(404, map[string]interface{}{"error": true})
-        }
+        m.Get("/codes", func(r render.Render) {
+            var codes []Code
+            _, err := dbmap.Select(&codes, "SELECT * FROM codes_tbl")
+
+            if err == nil {
+                r.JSON(200, codes)
+            } else {
+                r.JSON(404, map[string]interface{}{"error": true})
+            }
+        })
+
     })
 
     m.Run()
